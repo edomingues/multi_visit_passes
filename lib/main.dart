@@ -31,12 +31,18 @@ class _MyHomePageState extends State<MyHomePage> {
   static const String ENTRIES_LEFT = 'entriesLeft';
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  void _logVisit() async {
-    final SharedPreferences prefs = await _prefs;
-    final int counter = (prefs.getInt(ENTRIES_LEFT) ?? 1) - 1;
-    setState(() {
-      prefs.setInt(ENTRIES_LEFT, counter);
-    });
+  void _logVisit(BuildContext context) async {
+
+    DateTime date = await showDatePicker(context: context, initialDate: new DateTime.now(), firstDate: new DateTime(0), lastDate: new DateTime(9999));
+    if (date != null) {
+      final SharedPreferences prefs = await _prefs;
+      int counter = (prefs.getInt(ENTRIES_LEFT) ?? 1) - 1;
+      if (counter < 0 )
+        counter = 0;
+      setState(() {
+        prefs.setInt(ENTRIES_LEFT, counter);
+      });
+    }
   }
 
   void _recharge() async {
@@ -104,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _logVisit,
+        onPressed: () => _logVisit(context),
         tooltip: 'Log visit',
         child: new Icon(Icons.add),
       ),
