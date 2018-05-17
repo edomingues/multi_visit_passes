@@ -90,7 +90,16 @@ class _MyHomePageState extends State<MyHomePage> {
           flexibleSpace: new Center(
               child: new Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[new TextField(controller: controller, keyboardType: TextInputType.number)],
+            children: <Widget>[
+              new Row(
+                children: <Widget>[
+                  const Text('Entries '),
+                  new Expanded(
+                    child: new TextField(controller: controller, keyboardType: TextInputType.number),
+                  ),
+                ],
+              )
+            ],
           )));
     }));
 
