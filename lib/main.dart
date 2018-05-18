@@ -36,6 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static const String ENTRIES_LEFT = 'entriesLeft';
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   VisitsProvider _visitsProvider;
+  final dateFormat = new DateFormat('yyyy-MM-dd');
 
   Future _showNoEntriesAlert(BuildContext context) async {
     return showDialog(
@@ -76,39 +77,63 @@ class _MyHomePageState extends State<MyHomePage> {
   Future _recharge(BuildContext context) async {
     const DEFAULT_RECHARGE_ENTRIES = '10';
     TextEditingController controller = new TextEditingController(text: DEFAULT_RECHARGE_ENTRIES);
+
+    Visit visit = new Visit();
+    visit.date = new DateTime.now();
     final int entriesRecharge = await Navigator.of(context).push(new MaterialPageRoute<int>(builder: (BuildContext context) {
 
-      return new AppBar(
-          title: const Text('Recharge pass'),
-          actions: <Widget>[
-            new FlatButton(
+      return new Scaffold(
+          appBar: new AppBar(
+            title: const Text('Recharge pass'),
+            actions: <Widget>[
+              new FlatButton(
                 onPressed: () {
                   Navigator.of(context).pop(int.parse(controller.text, onError: (source) => 0));
                 },
                 child: new Text('Recharge'))
-          ],
-          flexibleSpace: new Center(
-              child: new Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  const Text('Entries '),
-                  new Expanded(
-                    child: new TextField(controller: controller, keyboardType: TextInputType.number),
-                  ),
-                ],
-              )
-            ],
-          )));
+          ]),
+          body:new Column(
+              children: <Widget>[
+                new Row(
+                  children: <Widget>[
+                    new Container(child: const Text('Entries '), padding: const EdgeInsets.all(20.0), width: 90.0,),
+                    new Container(
+                      child: new TextField(controller: controller, keyboardType: TextInputType.number),
+                      width: 48.0,
+                   ),
+                  ],
+                ),
+                new Row(
+                  children: <Widget>[
+                    new Container(child: const Text('Date '), padding: const EdgeInsets.all(20.0), width: 90.0,),
+                    new Expanded(
+                      child: new GestureDetector(
+                        onTap: () {
+                          // Ask date of recharge (default: today)
+                          showDatePicker(context: context,
+                              initialDate: new DateTime.now(),
+                              firstDate: new DateTime(0),
+                              lastDate: new DateTime(9999)).then((DateTime value) { if (value != null) {visit.date = value;} });
+                        },
+                        child:
+                          new Text(dateFormat.format(visit.date))
+                      )
+                    ),
+                  ],
+                )
+              ],
+            )
+      );
     }));
 
-    final SharedPreferences prefs = await _prefs;
-    final int counter = (prefs.getInt(ENTRIES_LEFT) ?? 0) + entriesRecharge;
-    _insertRechargeIntoDB(entriesRecharge);
-    setState(() {
-      prefs.setInt(ENTRIES_LEFT, counter);
-    });
+    if (entriesRecharge != null) {
+      final SharedPreferences prefs = await _prefs;
+      final int counter = (prefs.getInt(ENTRIES_LEFT) ?? 0) + entriesRecharge;
+      _insertRechargeIntoDB(entriesRecharge, visit.date);
+      setState(() {
+        prefs.setInt(ENTRIES_LEFT, counter);
+      });
+    }
   }
 
   void _confirmDelete(BuildContext context, Visit visit) {
@@ -158,9 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _visitsProvider.insert(visit);
   }
 
-  Future _insertRechargeIntoDB(int entries) async {
+  Future _insertRechargeIntoDB(int entries, DateTime date) async {
     Visit recharge = new Visit();
-    recharge.date = new DateTime.now();
+    recharge.date = date;
     recharge.action = Action.recharge;
     recharge.entries = entries;
     _visitsProvider.insert(recharge);
@@ -248,10 +273,11 @@ class _MyHomePageState extends State<MyHomePage> {
             List<Visit> visits = snapshot.requireData;
             if (index <= visits.length) {
               Visit visit = visits[index-1];
+
               return new ListTile(
                 leading: new Icon(visit.action == Action.recharge ? Icons.replay : Icons.add),
                 title: new Text('${visit.action == Action.recharge ? 'Recharge (${visit.entries})' : 'Visit'}'),
-                subtitle: new Text(new DateFormat('yyyy-MM-dd').format(visit.date)),
+                subtitle: new Text(dateFormat.format(visit.date)),
                 trailing: new IconButton(
                   icon: const Icon(Icons.delete),
                   tooltip: 'Delete',
