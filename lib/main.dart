@@ -109,9 +109,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     new Expanded(
                       child: new GestureDetector(
                         onTap: () {
-                          // Ask date of recharge (default: today)
+                          // Ask date of recharge (default: date selected)
                           showDatePicker(context: context,
-                              initialDate: new DateTime.now(),
+                              initialDate: visit.date,
                               firstDate: new DateTime(0),
                               lastDate: new DateTime(9999)).then((DateTime value) { if (value != null) {visit.date = value;} });
                         },
