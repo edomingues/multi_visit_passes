@@ -10,7 +10,18 @@ Press the recharge button on the top right to recharge your pass with some entri
 
 <img src="docs/recharge.png" width="300">
 
+<img src="docs/multi_visit_pass_recharge.gif" width="300">
+
 Press the plus button in the bottom right to log a visit:
 
 <img src="docs/log_date_picker.png" width="300">
 
+<img src="docs/multi_visit_pass_log.gif" width="300">
+
+If there are no remaining entries you cannot log a visit:
+
+<img src="docs/multi_visit_pass_no_entries.gif" width="300">
+
+To delete a visit or a rechage press the trash button in the right of the entry to remove:
+
+<img src="docs/multi_visit_pass_delete.gif" width="300">
